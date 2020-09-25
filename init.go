@@ -2,6 +2,9 @@ package semver
 
 import (
 	"flag"
+	"fmt"
+
+	"github.com/spf13/viper"
 
 	"github.com/pkg/errors"
 )
@@ -35,9 +38,20 @@ func (cmd *InitCommand) Register(fs *flag.FlagSet) {
 
 // Run ...
 func (cmd *InitCommand) Run(ctx *Ctx, args []string) error {
-	//root := ctx.WorkingDir
 	if len(args) > 1 {
 		return errors.Errorf("too many args (%d)", len(args))
 	}
-	return nil
+	if err := ctx.Manifest.Viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			if errDV := ctx.Manifest.DefaultVersion(); errDV != nil {
+
+				return errDV
+			}
+			ctx.Out.Printf("Initialized semver in %s", ctx.WorkingDir)
+			return nil
+		}
+		return err
+	}
+	return errors.New(fmt.Sprintf("Reinitialized semver in %s", ctx.WorkingDir))
+
 }

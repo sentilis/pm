@@ -66,6 +66,8 @@ func Run() int {
 				WorkingDir: workingDir,
 				Manifest:   semver.NewManifest(),
 			}
+			ctx.Manifest.Viper.AddConfigPath(workingDir)
+
 			if err := cmd.Run(ctx, flags.Args()); err != nil {
 				errLogger.Printf("%v\n", err)
 				return errorExitCode

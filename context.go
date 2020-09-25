@@ -7,7 +7,7 @@ import (
 // Ctx ...
 type Ctx struct {
 	WorkingDir string // Where to execute.
-	Manifest   Manifest
+	Manifest   *Manifest
 	Out, Err   *log.Logger // Required loggers.
 
 }
