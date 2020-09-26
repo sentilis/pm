@@ -82,6 +82,7 @@ func Run() int {
 func commandList() []command {
 	return []command{
 		&semver.InitCommand{},
+		&semver.MajorCommand{},
 		&semver.MinorCommand{},
 		&semver.PatchCommand{},
 	}
