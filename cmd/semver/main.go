@@ -85,6 +85,7 @@ func commandList() []command {
 		&semver.MajorCommand{},
 		&semver.MinorCommand{},
 		&semver.PatchCommand{},
+		&semver.StatusCommand{},
 	}
 
 }
