@@ -8,14 +8,14 @@ import (
 type MajorCommand struct {
 }
 
-const majorShortHelp = ``
+const majorShortHelp = `Version when you make incompatible API changes`
 const majorLongHelp = ``
 
 // Name ...
 func (cmd *MajorCommand) Name() string { return "major" }
 
 // Args ...
-func (cmd *MajorCommand) Args() string { return "..." }
+func (cmd *MajorCommand) Args() string { return "" }
 
 // ShortHelp ...
 func (cmd *MajorCommand) ShortHelp() string { return majorShortHelp }
@@ -33,7 +33,7 @@ func (cmd *MajorCommand) Register(fs *flag.FlagSet) {
 
 // Run ...
 func (cmd *MajorCommand) Run(ctx *Ctx, args []string) error {
-	if _, err := ctx.Manifest.ValidateManifest(); err != nil {
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	major := ctx.Manifest.Viper.GetInt("version.major") + 1

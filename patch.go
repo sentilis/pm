@@ -8,14 +8,14 @@ import (
 type PatchCommand struct {
 }
 
-const patchShortHelp = ``
+const patchShortHelp = `Version when you make backwards compatible bug fixes`
 const patchLongHelp = ``
 
 // Name ...
 func (cmd *PatchCommand) Name() string { return "patch" }
 
 // Args ...
-func (cmd *PatchCommand) Args() string { return "..." }
+func (cmd *PatchCommand) Args() string { return "" }
 
 // ShortHelp ...
 func (cmd *PatchCommand) ShortHelp() string { return patchShortHelp }
@@ -33,7 +33,7 @@ func (cmd *PatchCommand) Register(fs *flag.FlagSet) {
 
 // Run ...
 func (cmd *PatchCommand) Run(ctx *Ctx, args []string) error {
-	if _, err := ctx.Manifest.ValidateManifest(); err != nil {
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	patch := ctx.Manifest.Viper.GetInt("version.patch") + 1

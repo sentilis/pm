@@ -8,7 +8,7 @@ import (
 type StatusCommand struct {
 }
 
-const statusShortHelp = ``
+const statusShortHelp = `Show semantic-versioning version-release+build`
 const statusLongHelp = ``
 
 // Name ...
@@ -33,7 +33,7 @@ func (cmd *StatusCommand) Register(fs *flag.FlagSet) {
 
 // Run ...
 func (cmd *StatusCommand) Run(ctx *Ctx, args []string) error {
-	if _, err := ctx.Manifest.ValidateManifest(); err != nil {
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	ctx.Out.Printf("%d.%d.%d",

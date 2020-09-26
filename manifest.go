@@ -1,6 +1,9 @@
 package semver
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/spf13/viper"
 )
 
@@ -29,10 +32,22 @@ func NewManifest() *Manifest {
 }
 
 // ValidateManifest ...
-func (m *Manifest) ValidateManifest() ([]error, error) {
-	var warns []error
-	m.Viper.ReadInConfig()
-	return warns, nil
+func (m *Manifest) ValidateManifest() error {
+
+	if err := m.Viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			return errors.New("fatal: has not initialized semver")
+		}
+		return err
+	}
+	rManifest := rawManifest{}
+	m.Viper.UnmarshalExact(&rManifest)
+	rVersion := rManifest.Version
+	if rVersion.Major < 0 || rVersion.Minor < 0 || rVersion.Patch < 0 {
+		return fmt.Errorf("fatal: Version number MUST are non-negative integers %d.%d.%d", rVersion.Major, rVersion.Minor, rVersion.Patch)
+	}
+
+	return nil
 
 }
 

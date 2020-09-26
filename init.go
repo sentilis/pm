@@ -13,7 +13,7 @@ import (
 type InitCommand struct {
 }
 
-const initShortHelp = `Set up a new SEV project`
+const initShortHelp = `Set up a new semantic-versioning version-release+build`
 const initLongHelp = ``
 
 // Name ...

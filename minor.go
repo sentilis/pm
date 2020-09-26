@@ -8,14 +8,14 @@ import (
 type MinorCommand struct {
 }
 
-const minorShortHelp = ``
+const minorShortHelp = `Version when you add functionality in a backwards compatible manner`
 const minorLongHelp = ``
 
 // Name ...
 func (cmd *MinorCommand) Name() string { return "minor" }
 
 // Args ...
-func (cmd *MinorCommand) Args() string { return "..." }
+func (cmd *MinorCommand) Args() string { return "" }
 
 // ShortHelp ...
 func (cmd *MinorCommand) ShortHelp() string { return minorShortHelp }
@@ -33,7 +33,7 @@ func (cmd *MinorCommand) Register(fs *flag.FlagSet) {
 
 // Run ...
 func (cmd *MinorCommand) Run(ctx *Ctx, args []string) error {
-	if _, err := ctx.Manifest.ValidateManifest(); err != nil {
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	minor := ctx.Manifest.Viper.GetInt("version.minor") + 1

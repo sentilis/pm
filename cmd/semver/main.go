@@ -144,18 +144,18 @@ func fprintUsage(w io.Writer) {
 var examples = [...][2]string{
 	{
 		"semver init",
-		"set up a new sematic-versioning version-release+build",
+		"Set up a new sematic-versioning",
 	},
 	{
-		"semver release",
-		"Set up label release -beta.0.0.0",
+		"semver [major|minor|patch]",
+		"Given a version number MAJOR.MINOR.PATCH",
 	},
-	{
+	/*{
 		"semver build",
 		"set up build metadata +build.0.0.0",
 	},
 	{
 		"semver changelog",
 		"Create file CHANGELOG.rst and append lastet version header",
-	},
+	},*/
 }
