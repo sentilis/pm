@@ -36,6 +36,9 @@ func (cmd *MajorCommand) Run(ctx *Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
+	if err := WorkingOnPreRelease(ctx); err != nil {
+		return err
+	}
 	major := ctx.Manifest.Viper.GetInt("version.major") + 1
 	ctx.Manifest.Viper.Set("version.major", major)
 	ctx.Manifest.Viper.Set("version.minor", 0)

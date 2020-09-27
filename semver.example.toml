@@ -12,9 +12,9 @@ life_cycle = "simplified"
 ##############
 # 1) alfa 
 # 2) beta 
-# 3) Release candidate
-# 4) Stable release 
-#    Stable release LTS
+# 3) Release candidate  -rc
+# 4) Stable release  -sr
+#    Stable release LTS -lts
 # 5) discontinued
 
 ##########
@@ -23,15 +23,13 @@ life_cycle = "simplified"
 # 1) X stages 
 # 2) discontinued
 stage_development="alfa"
-
-[release.version]
 major = 0
 minor = 0
 patch = 0
 label = ""
 
 
-[build.version]
+[build]
 major = 0
 minor = 0
 patch = 0

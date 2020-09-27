@@ -2,6 +2,7 @@ package semver
 
 import (
 	"flag"
+	"fmt"
 )
 
 // StatusCommand ..
@@ -36,11 +37,19 @@ func (cmd *StatusCommand) Run(ctx *Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
-	ctx.Out.Printf("%d.%d.%d",
-		ctx.Manifest.Viper.Get("version.major"),
-		ctx.Manifest.Viper.Get("version.minor"),
-		ctx.Manifest.Viper.Get("version.patch"),
+	version := fmt.Sprintf(
+		"%d.%d.%d",
+		ctx.Manifest.Viper.GetInt("version.major"),
+		ctx.Manifest.Viper.GetInt("version.minor"),
+		ctx.Manifest.Viper.GetInt("version.patch"),
 	)
+	release := ""
+	releaseLabel := ctx.Manifest.Viper.GetString("release.label")
+	if len(releaseLabel) > 0 {
+		releasePatch := ctx.Manifest.Viper.GetString("release.patch")
+		release = fmt.Sprintf("-%s.%s", releaseLabel, releasePatch)
+	}
+	ctx.Out.Printf("%s%s", version, release)
 	return nil
 
 }

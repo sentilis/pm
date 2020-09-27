@@ -86,6 +86,7 @@ func commandList() []command {
 		&semver.MinorCommand{},
 		&semver.PatchCommand{},
 		&semver.StatusCommand{},
+		&semver.ReleaseCommand{},
 	}
 
 }
@@ -150,12 +151,21 @@ var examples = [...][2]string{
 		"semver [major|minor|patch]",
 		"Given a version number MAJOR.MINOR.PATCH",
 	},
-	/*{
-		"semver build",
-		"set up build metadata +build.0.0.0",
+	{"", ""},
+	{
+		"semver release",
+		"Show version release",
 	},
 	{
-		"semver changelog",
-		"Create file CHANGELOG.rst and append lastet version header",
-	},*/
+		"semver release -label ",
+		"Given a label release",
+	},
+	{
+		"semver release -patch",
+		"Increase the patch release",
+	},
+	{
+		"semver release -rm",
+		"Remove release",
+	},
 }

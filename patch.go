@@ -36,6 +36,9 @@ func (cmd *PatchCommand) Run(ctx *Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
+	if err := WorkingOnPreRelease(ctx); err != nil {
+		return err
+	}
 	patch := ctx.Manifest.Viper.GetInt("version.patch") + 1
 	ctx.Manifest.Viper.Set("version.patch", patch)
 
