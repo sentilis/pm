@@ -87,6 +87,7 @@ func commandList() []command {
 		&semver.PatchCommand{},
 		&semver.StatusCommand{},
 		&semver.ReleaseCommand{},
+		&semver.BuildCommand{},
 	}
 
 }
@@ -168,4 +169,5 @@ var examples = [...][2]string{
 		"semver release -rm",
 		"Remove release",
 	},
+	{"", ""},
 }

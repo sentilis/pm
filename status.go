@@ -49,7 +49,15 @@ func (cmd *StatusCommand) Run(ctx *Ctx, args []string) error {
 		releasePatch := ctx.Manifest.Viper.GetString("release.patch")
 		release = fmt.Sprintf("-%s.%s", releaseLabel, releasePatch)
 	}
-	ctx.Out.Printf("%s%s", version, release)
+
+	build := ""
+	buildLabel := ctx.Manifest.Viper.GetString("build.label")
+	if len(buildLabel) > 0 {
+		buildPatch := ctx.Manifest.Viper.GetString("build.patch")
+		build = fmt.Sprintf("+%s.%s", buildLabel, buildPatch)
+	}
+
+	ctx.Out.Printf("%s%s%s", version, release, build)
 	return nil
 
 }
