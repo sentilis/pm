@@ -50,8 +50,13 @@ func (cmd *ReleaseCommand) Run(ctx *Ctx, args []string) error {
 	return nil
 
 }
+
 func (cmd *ReleaseCommand) runRemove(ctx *Ctx, args []string) error {
-	ctx.Manifest.Viper.Set("release.label", nil)
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
+		return err
+	}
+
+	ctx.Manifest.Viper.Set("release.label", "")
 	ctx.Manifest.Viper.Set("release.patch", 0)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err

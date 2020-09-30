@@ -50,7 +50,10 @@ func (cmd *BuildCommand) Run(ctx *Ctx, args []string) error {
 
 }
 func (cmd *BuildCommand) runRemove(ctx *Ctx, args []string) error {
-	ctx.Manifest.Viper.Set("build.label", nil)
+	if err := ctx.Manifest.ValidateManifest(); err != nil {
+		return err
+	}
+	ctx.Manifest.Viper.Set("build.label", "")
 	ctx.Manifest.Viper.Set("build.patch", 0)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err

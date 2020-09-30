@@ -40,7 +40,7 @@ func (m *Manifest) ValidateManifest() error {
 		}
 		return err
 	}
-	rManifest := rawManifest{}
+	rManifest := RawManifest{}
 	m.Viper.UnmarshalExact(&rManifest)
 	rVersion := rManifest.Version
 	if rVersion.Major < 0 || rVersion.Minor < 0 || rVersion.Patch < 0 {
@@ -64,17 +64,27 @@ func (m Manifest) version() {
 	//	m.Viper.Un
 }
 
-type rawManifest struct {
-	Version rawVersion `mapstructure:"version"`
+// RawManifest ...
+type RawManifest struct {
+	Version RawVersion `mapstructure:"version"`
+	Release RawRelease `mapstructure:"release"`
+	Build   RawBuild   `mapstructure:"build"`
 }
-type rawVersion struct {
+
+// RawVersion ...
+type RawVersion struct {
 	Major int    `mapstructure:"major"`
 	Minor int    `mapstructure:"minor"`
 	Patch int    `mapstructure:"patch"`
 	Label string `mapstructure:"label"`
 }
 
-type rawReleaseVersion struct {
+// RawRelease ...
+type RawRelease struct {
+	RawVersion
 }
-type rawBuildVersion struct {
+
+// RawBuild ...
+type RawBuild struct {
+	RawVersion
 }
