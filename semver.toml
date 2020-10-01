@@ -1,4 +1,8 @@
 
+[release]
+  label = "alfa"
+  patch = 8
+
 [version]
   label = ""
   major = 0

@@ -20,3 +20,19 @@ if you're interested  in getting the source code, or hacking on `semver`, you ca
 ```bash
 go get -u github.com/josehbez/semver
 ```
+
+If you're interested use mode production 
+```bash
+cd $GOPATH/github.com/josehbez/semver/cmd/semver
+go install
+
+or  
+
+go install github.com/josehbez/semver/cmd/semver
+
+mv semver  go-semver
+```
+
+## Roadmap 
+
+Visit roadmap in notion, [click here](https://www.notion.so/Semver-Roadmap-9db6961540d44a90831111835667cd28)
