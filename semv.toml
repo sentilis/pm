@@ -1,10 +1,10 @@
 
 [release]
-  label = "alfa"
-  patch = 8
+  label = "release-candidate"
+  patch = 0
 
 [version]
   label = ""
   major = 0
   minor = 1
-  patch = 3
+  patch = 0

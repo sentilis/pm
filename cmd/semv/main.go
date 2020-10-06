@@ -118,9 +118,9 @@ func parseArgs(args []string) (cmdName string, printCmdUsage bool, exit bool) {
 }
 
 func fprintUsage(w io.Writer) {
-	fmt.Fprintln(w, "semver is a tool for managing semantic-versioning")
+	fmt.Fprintln(w, "semv is a tool for managing semantic-versioning")
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Usage: \"semver [command]\"")
+	fmt.Fprintln(w, "Usage: \"semv [command]\"")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Commands:")
 	fmt.Fprintln(w)
@@ -140,7 +140,7 @@ func fprintUsage(w io.Writer) {
 	}
 	tw.Flush()
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Use \"semver help [command]\" for more information about a command.")
+	fmt.Fprintln(w, "Use \"semv help [command]\" for more information about a command.")
 }
 
 var examples = [...][2]string{
