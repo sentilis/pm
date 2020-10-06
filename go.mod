@@ -1,4 +1,4 @@
-module github.com/josehbez/semver
+module github.com/josehbez/semv
 
 go 1.13
 

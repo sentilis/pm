@@ -11,26 +11,25 @@
 
 ## Semantic Versioning - semver
 
-`semver` is a tool for managing semantic-versioning. Based on spec [semver.org](http://semver.org)
+`semv` is a tool for managing semantic-versioning. Based on spec [semver.org](http://semver.org)
 
 ## Download and install
 
-if you're interested  in getting the source code, or hacking on `semver`, you can intall via `go get`. 
+if you're interested  in getting the source code, or hacking on `semv`, you can intall via `go get`. 
 
 ```bash
-go get -u github.com/josehbez/semver
+go get -u github.com/josehbez/semv
 ```
 
 If you're interested use mode production 
 ```bash
-cd $GOPATH/github.com/josehbez/semver/cmd/semver
+cd $GOPATH/github.com/josehbez/semv/cmd/semv
 go install
 
 or  
 
-go install github.com/josehbez/semver/cmd/semver
+go install github.com/josehbez/semv/cmd/semv
 
-mv semver  go-semver
 ```
 
 ## Roadmap 
