@@ -24,6 +24,11 @@ jobs:
       with:
         go-version: ${{ matrix.version }}
 
+    - name: Install dependencies
+      run: |
+        go version
+        go get -u golang.org/x/lint/golint
+ 
     - name: Run vet & lint
       run: |
         go vet .
