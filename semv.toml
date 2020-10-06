@@ -1,0 +1,10 @@
+
+[release]
+  label = "release-candidate"
+  patch = 0
+
+[version]
+  label = ""
+  major = 0
+  minor = 1
+  patch = 0
