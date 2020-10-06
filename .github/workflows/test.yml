@@ -1,15 +1,13 @@
-name: Go
+name: Test Go Project
 
 on:
-  push:
-    branches: [ "1.z.y" ]
   pull_request:
-    branches: [ "1.z.y" ]
+    branches: [ "master" ]
 
 jobs:
 
   test:
-    name: Test on go ${{ matrix.verison }} and ${{ matrix.os }}
+    name: Test on go ${{ matrix.version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
