@@ -17,7 +17,17 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
+    - uses: actions/checkout@v2
+
     - name: Set up Go ${{ matrix.version }}
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.version }}
+
+    - name: Run vet & lint
+      run: |
+        go vet .
+        golint .
+    
+    - name: Run testing
+      run: go test -v
