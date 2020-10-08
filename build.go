@@ -12,8 +12,8 @@ type BuildCommand struct {
 	remove bool
 }
 
-const BuildShortHelp = ``
-const BuildLongHelp = ``
+const buildShortHelp = ``
+const buildLongHelp = ``
 
 // Name ...
 func (cmd *BuildCommand) Name() string { return "build" }
@@ -22,10 +22,10 @@ func (cmd *BuildCommand) Name() string { return "build" }
 func (cmd *BuildCommand) Args() string { return "" }
 
 // ShortHelp ...
-func (cmd *BuildCommand) ShortHelp() string { return BuildShortHelp }
+func (cmd *BuildCommand) ShortHelp() string { return buildShortHelp }
 
 // LongHelp ...
-func (cmd *BuildCommand) LongHelp() string { return BuildLongHelp }
+func (cmd *BuildCommand) LongHelp() string { return buildLongHelp }
 
 // Hidden ...
 func (cmd *BuildCommand) Hidden() bool { return false }

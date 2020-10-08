@@ -1,5 +1,4 @@
 
-<p align="center"><img src="docs/assets/DigbyShadows.png" width="360"></p>
 <p align="center">  
   <a href="#">
     <img src="https://img.shields.io/github/go-mod/go-version/josehbez/semver">
@@ -7,11 +6,38 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/josehbez/semver?style=flat-square" />
   </a>
+  <a href="semv.toml">
+    <img src="https://img.shields.io/badge/semv-1.0.3-green">
+  </a>
+</p>
+<p align="center">  
+  <a href="https://github.com/josehbez/semv">
+    <img src="https://img.shields.io/badge/semver.org-by semv-green">
+  </a>
 </p>
 
-## Semantic Versioning - semver
+## Semantic Versioning
 
-`semv` is a tool for managing semantic-versioning. Based on spec [semver.org](http://semver.org)
+`semv` It is a tool that facilitates the manipulation of the semantic-versioning of a software project. Upon initialization, it generates a `semv.toml` file that contains the semantic-versioning data. 
+
+
+
+## Our goals
+
+* `semv.toml` be a standard file that stores the software semantic-versioning
+* Facilitate the manipulation of semantic-versioning regardless of the software project
+* Based on spec [semver.org](http://semver.org)
+
+
+## Use badge
+```markdown
+
+# HEADER:  Copy and replace VERSION for current version 
+[![](https://img.shields.io/badge/semv-VERSION-green)](semv.toml)
+
+[![](https://img.shields.io/badge/semver.org-by semv-green)](https://github.com/josehbez/semv)
+
+```
 
 ## Download and install
 
@@ -23,15 +49,9 @@ go get -u github.com/josehbez/semv
 
 If you're interested use mode production 
 ```bash
-cd $GOPATH/github.com/josehbez/semv/cmd/semv
-go install
-
-or  
 
 go install github.com/josehbez/semv/cmd/semv
 
 ```
 
-## Roadmap 
 
-Visit roadmap in notion, [click here](https://www.notion.so/Semver-Roadmap-9db6961540d44a90831111835667cd28)
