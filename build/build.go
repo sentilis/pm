@@ -1,14 +1,16 @@
-package semv
+package build
 
 import (
 	"flag"
 	"fmt"
+
+	"github.com/josehbez/pm"
 )
 
-// BuildCommand ..
-type BuildCommand struct {
+// Command ..
+type Command struct {
 	label  bool
-	patch  bool
+	major  bool
 	remove bool
 }
 
@@ -16,52 +18,52 @@ const buildShortHelp = ``
 const buildLongHelp = ``
 
 // Name ...
-func (cmd *BuildCommand) Name() string { return "build" }
+func (cmd *Command) Name() string { return "build" }
 
 // Args ...
-func (cmd *BuildCommand) Args() string { return "" }
+func (cmd *Command) Args() string { return "" }
 
 // ShortHelp ...
-func (cmd *BuildCommand) ShortHelp() string { return buildShortHelp }
+func (cmd *Command) ShortHelp() string { return buildShortHelp }
 
 // LongHelp ...
-func (cmd *BuildCommand) LongHelp() string { return buildLongHelp }
+func (cmd *Command) LongHelp() string { return buildLongHelp }
 
 // Hidden ...
-func (cmd *BuildCommand) Hidden() bool { return false }
+func (cmd *Command) Hidden() bool { return false }
 
 // Register ...
-func (cmd *BuildCommand) Register(fs *flag.FlagSet) {
+func (cmd *Command) Register(fs *flag.FlagSet) {
 	fs.BoolVar(&cmd.label, "label", false, "Set label build metadata")
-	fs.BoolVar(&cmd.patch, "patch", false, "Increase the patch")
-	fs.BoolVar(&cmd.remove, "rm", false, "Remove build metadata")
+	fs.BoolVar(&cmd.major, "major", false, "Increase the major")
+	fs.BoolVar(&cmd.remove, "remove", false, "Remove build metadata")
 }
 
 // Run ...
-func (cmd *BuildCommand) Run(ctx *Ctx, args []string) error {
+func (cmd *Command) Run(ctx *pm.Ctx, args []string) error {
 	if cmd.label {
 		return cmd.runLabel(ctx, args)
-	} else if cmd.patch {
-		return cmd.runPatch(ctx, args)
+	} else if cmd.major {
+		return cmd.runMajor(ctx, args)
 	} else if cmd.remove {
 		return cmd.runRemove(ctx, args)
 	}
 	return nil
 
 }
-func (cmd *BuildCommand) runRemove(ctx *Ctx, args []string) error {
+func (cmd *Command) runRemove(ctx *pm.Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	ctx.Manifest.Viper.Set("build.label", "")
-	ctx.Manifest.Viper.Set("build.patch", 0)
+	ctx.Manifest.Viper.Set("build.major", 0)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (cmd *BuildCommand) runPatch(ctx *Ctx, args []string) error {
+func (cmd *Command) runMajor(ctx *pm.Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
@@ -69,14 +71,14 @@ func (cmd *BuildCommand) runPatch(ctx *Ctx, args []string) error {
 	if len(label) == 0 {
 		return fmt.Errorf("warng: first run semver build -label")
 	}
-	patch := ctx.Manifest.Viper.GetInt("build.patch") + 1
-	ctx.Manifest.Viper.Set("build.patch", patch)
+	major := ctx.Manifest.Viper.GetInt("build.major") + 1
+	ctx.Manifest.Viper.Set("build.major", major)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err
 	}
 	return nil
 }
-func (cmd *BuildCommand) runLabel(ctx *Ctx, args []string) error {
+func (cmd *Command) runLabel(ctx *pm.Ctx, args []string) error {
 
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
@@ -97,7 +99,7 @@ func (cmd *BuildCommand) runLabel(ctx *Ctx, args []string) error {
 
 	if len(labelNew) > 0 {
 		ctx.Manifest.Viper.Set("build.label", labelNew)
-		ctx.Manifest.Viper.Set("build.patch", 0)
+		ctx.Manifest.Viper.Set("build.major", 0)
 		if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 			return err
 		}

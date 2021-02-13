@@ -1,4 +1,4 @@
-package semv
+package pm
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 )
 
 // ManifestName is the manifest file name used by semver.
-const ManifestName = "semv"
+const ManifestName = ".pm"
 
 // ManifestType is the manisfest file name format
 const ManifestType = "toml"

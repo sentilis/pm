@@ -1,4 +1,4 @@
-module github.com/josehbez/semv
+module github.com/josehbez/pm
 
 go 1.13
 

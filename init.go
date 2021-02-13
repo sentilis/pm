@@ -1,4 +1,4 @@
-package semv
+package pm
 
 import (
 	"flag"
@@ -13,7 +13,7 @@ import (
 type InitCommand struct {
 }
 
-const initShortHelp = `Set up a new semantic-versioning`
+const initShortHelp = `Set up a new Project Metadata Management`
 const initLongHelp = ``
 
 // Name ...
@@ -32,26 +32,20 @@ func (cmd *InitCommand) LongHelp() string { return initLongHelp }
 func (cmd *InitCommand) Hidden() bool { return false }
 
 // Register ...
-func (cmd *InitCommand) Register(fs *flag.FlagSet) {
-
-}
+func (cmd *InitCommand) Register(fs *flag.FlagSet) {}
 
 // Run ...
 func (cmd *InitCommand) Run(ctx *Ctx, args []string) error {
-	if len(args) > 1 {
-		return errors.Errorf("too many args (%d)", len(args))
-	}
 	if err := ctx.Manifest.Viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			if errDV := ctx.Manifest.DefaultVersion(); errDV != nil {
-
 				return errDV
 			}
-			ctx.Out.Printf("Initialized semver in %s", ctx.WorkingDir)
+			ctx.Out.Printf("Initialized in %s", ctx.WorkingDir)
 			return nil
 		}
 		return err
 	}
-	return errors.New(fmt.Sprintf("Reinitialized semver in %s", ctx.WorkingDir))
+	return errors.New(fmt.Sprintf("Reinitialized in %s", ctx.WorkingDir))
 
 }

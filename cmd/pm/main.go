@@ -10,6 +10,9 @@ import (
 	"text/tabwriter"
 
 	"github.com/josehbez/pm"
+	pmBuild "github.com/josehbez/pm/build"
+	pmPreRelease "github.com/josehbez/pm/prerelease"
+	pmVersion "github.com/josehbez/pm/version"
 )
 
 func main() {
@@ -22,8 +25,8 @@ var (
 )
 
 type command interface {
-	Name() string           // "foobar"
-	Args() string           // "<baz> [quux...]"
+	Name() string           // "version"
+	Args() string           // "<version> [minor...]"
 	ShortHelp() string      // "Foo the first bar"
 	LongHelp() string       // "Foo the first bar meeting the following conditions..."
 	Register(*flag.FlagSet) // command-specific flags
@@ -82,12 +85,9 @@ func Run() int {
 func commandList() []command {
 	return []command{
 		&pm.InitCommand{},
-		&pm.MajorCommand{},
-		&pm.MinorCommand{},
-		&pm.PatchCommand{},
-		&pm.StatusCommand{},
-		&pm.ReleaseCommand{},
-		&pm.BuildCommand{},
+		&pmVersion.Command{},
+		&pmPreRelease.Command{},
+		&pmBuild.Command{},
 	}
 
 }
@@ -118,9 +118,9 @@ func parseArgs(args []string) (cmdName string, printCmdUsage bool, exit bool) {
 }
 
 func fprintUsage(w io.Writer) {
-	fmt.Fprintln(w, "semv is a tool for managing semantic-versioning")
+	fmt.Fprintln(w, "pm is a tool for Project Metadata Management")
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Usage: \"semv [command]\"")
+	fmt.Fprintln(w, "Usage: \"pm [command]\"")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, "Commands:")
 	fmt.Fprintln(w)
@@ -140,34 +140,12 @@ func fprintUsage(w io.Writer) {
 	}
 	tw.Flush()
 	fmt.Fprintln(w)
-	fmt.Fprintln(w, "Use \"semv help [command]\" for more information about a command.")
+	fmt.Fprintln(w, "Use \"pm help [command]\" for more information about a command.")
 }
 
 var examples = [...][2]string{
-	{
-		"semv init",
-		"Set up a new sematic-versioning",
-	},
-	{
-		"semv [major|minor|patch]",
-		"Given a version number MAJOR.MINOR.PATCH",
-	},
-	{"", ""},
-	{
-		"semv release",
-		"Show version release",
-	},
-	{
-		"semv release -label ",
-		"Given a label release",
-	},
-	{
-		"semv release -patch",
-		"Increase the patch release",
-	},
-	{
-		"semv release -rm",
-		"Remove release",
-	},
-	{"", ""},
+	{"pm", "init"},
+	{"pm", "version [major|minor|patch]"},
+	{"pm", "pre-release [label|major|remove]"},
+	{"pm", "build [label|major|remove]"},
 }

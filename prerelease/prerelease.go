@@ -1,15 +1,17 @@
-package semv
+package pm
 
 import (
 	"flag"
 	"fmt"
 	"strings"
+
+	"github.com/josehbez/pm"
 )
 
-// ReleaseCommand ..
-type ReleaseCommand struct {
+// Command ..
+type Command struct {
 	label  bool
-	patch  bool
+	major  bool
 	remove bool
 }
 
@@ -17,33 +19,33 @@ const releaseShortHelp = `Software release cycle life [alfa < beta < release-can
 const releaseLongHelp = ``
 
 // Name ...
-func (cmd *ReleaseCommand) Name() string { return "release" }
+func (cmd *Command) Name() string { return "pre-release" }
 
 // Args ...
-func (cmd *ReleaseCommand) Args() string { return "" }
+func (cmd *Command) Args() string { return "" }
 
 // ShortHelp ...
-func (cmd *ReleaseCommand) ShortHelp() string { return releaseShortHelp }
+func (cmd *Command) ShortHelp() string { return releaseShortHelp }
 
 // LongHelp ...
-func (cmd *ReleaseCommand) LongHelp() string { return releaseLongHelp }
+func (cmd *Command) LongHelp() string { return releaseLongHelp }
 
 // Hidden ...
-func (cmd *ReleaseCommand) Hidden() bool { return false }
+func (cmd *Command) Hidden() bool { return false }
 
 // Register ...
-func (cmd *ReleaseCommand) Register(fs *flag.FlagSet) {
+func (cmd *Command) Register(fs *flag.FlagSet) {
 	fs.BoolVar(&cmd.label, "label", false, "Set label software release cycle life [alfa < beta < release-candidate < release | release-tls < discontinued]")
-	fs.BoolVar(&cmd.patch, "patch", false, "Increase the patch")
-	fs.BoolVar(&cmd.remove, "rm", false, "Remove release")
+	fs.BoolVar(&cmd.major, "major", false, "Increase the major")
+	fs.BoolVar(&cmd.remove, "remove", false, "Remove release")
 }
 
 // Run ...
-func (cmd *ReleaseCommand) Run(ctx *Ctx, args []string) error {
+func (cmd *Command) Run(ctx *pm.Ctx, args []string) error {
 	if cmd.label {
 		return cmd.runLabel(ctx, args)
-	} else if cmd.patch {
-		return cmd.runPatch(ctx, args)
+	} else if cmd.major {
+		return cmd.runMajor(ctx, args)
 	} else if cmd.remove {
 		return cmd.runRemove(ctx, args)
 	}
@@ -51,42 +53,42 @@ func (cmd *ReleaseCommand) Run(ctx *Ctx, args []string) error {
 
 }
 
-func (cmd *ReleaseCommand) runRemove(ctx *Ctx, args []string) error {
+func (cmd *Command) runRemove(ctx *pm.Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 
-	ctx.Manifest.Viper.Set("release.label", "")
-	ctx.Manifest.Viper.Set("release.patch", 0)
+	ctx.Manifest.Viper.Set("prerelease.label", "")
+	ctx.Manifest.Viper.Set("prerelease.major", 0)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (cmd *ReleaseCommand) runPatch(ctx *Ctx, args []string) error {
+func (cmd *Command) runMajor(ctx *pm.Ctx, args []string) error {
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
-	label := ctx.Manifest.Viper.GetString("release.label")
+	label := ctx.Manifest.Viper.GetString("prerelease.label")
 	if len(label) == 0 {
 		return fmt.Errorf("warng: first run semver pre-release -label")
 	}
-	patch := ctx.Manifest.Viper.GetInt("release.patch") + 1
-	ctx.Manifest.Viper.Set("release.patch", patch)
+	major := ctx.Manifest.Viper.GetInt("prerelease.major") + 1
+	ctx.Manifest.Viper.Set("prerelease.major", major)
 	if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 		return err
 	}
 	return nil
 }
-func (cmd *ReleaseCommand) runLabel(ctx *Ctx, args []string) error {
+func (cmd *Command) runLabel(ctx *pm.Ctx, args []string) error {
 
 	if err := ctx.Manifest.ValidateManifest(); err != nil {
 		return err
 	}
 	cycleLife := SoftwareReleaseCycleLife("simplified")
 
-	label := ctx.Manifest.Viper.GetString("release.label")
+	label := ctx.Manifest.Viper.GetString("prerelease.label")
 	labelID := -1
 
 	labelNew := ""
@@ -126,8 +128,8 @@ func (cmd *ReleaseCommand) runLabel(ctx *Ctx, args []string) error {
 	}
 
 	if len(labelNew) > 0 {
-		ctx.Manifest.Viper.Set("release.label", labelNew)
-		ctx.Manifest.Viper.Set("release.patch", 0)
+		ctx.Manifest.Viper.Set("prerelease.label", labelNew)
+		ctx.Manifest.Viper.Set("prerelease.mejor", 0)
 		if err := ctx.Manifest.Viper.WriteConfig(); err != nil {
 			return err
 		}
@@ -163,12 +165,12 @@ func SoftwareReleaseCycleLife(kind string) []string {
 }
 
 // WorkingOnPreRelease ...
-func WorkingOnPreRelease(ctx *Ctx) error {
-	releaseLabel := ctx.Manifest.Viper.GetString("release.label")
+func WorkingOnPreRelease(ctx *pm.Ctx) error {
+	releaseLabel := ctx.Manifest.Viper.GetString("prerelease.label")
 	if len(releaseLabel) > 0 {
 		for _, l := range SoftwareReleaseCycleLife("simplified-pre-release") {
 			if l == releaseLabel {
-				return fmt.Errorf("Warning: You are working on a pre-release.\n\nUsege: \n\n semver pre-release -patch")
+				return fmt.Errorf("Warning: You are working on a pre-release.\n\nUsege: \n\n semver pre-release -major")
 			}
 		}
 	}

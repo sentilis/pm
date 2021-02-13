@@ -1,4 +1,4 @@
-package semv
+package pm
 
 import (
 	"log"
