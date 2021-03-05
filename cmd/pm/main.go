@@ -6,15 +6,16 @@ import (
 	"path"
 
 	"github.com/josehbez/pm"
-	changelog "github.com/josehbez/pm/changelog"
-	version "github.com/josehbez/pm/version"
+	"github.com/josehbez/pm/changelog"
+	"github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 
 	"github.com/spf13/viper"
 )
 
 func main() {
-	run().Execute()
+	doc.GenMarkdownTree(run(), "./docs")
 }
 
 type command interface {
