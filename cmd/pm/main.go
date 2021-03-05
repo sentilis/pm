@@ -9,13 +9,12 @@ import (
 	"github.com/josehbez/pm/changelog"
 	"github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 
 	"github.com/spf13/viper"
 )
 
 func main() {
-	doc.GenMarkdownTree(run(), "./docs")
+	run().Execute()
 }
 
 type command interface {
