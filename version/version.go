@@ -3,6 +3,7 @@ package version
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/josehbez/pm"
 	"github.com/spf13/cobra"
@@ -27,6 +28,9 @@ func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 		} else if ok, _ := cmd.Flags().GetBool("full"); ok {
 			c.status(ctx, "full")
 			os.Exit(0)
+		} else if ok, _ := cmd.Flags().GetString("check"); len(ok) > 0 {
+			ctx.Out.Println(c.check(ok))
+			os.Exit(0)
 		}
 		c.status(ctx, cmd.Name())
 	}
@@ -40,7 +44,11 @@ Examples:
  $ pm version -z
 
  $ pm version -f 
- $ 1.0.1-alfa.1+exp.sha.1`,
+ $ 1.0.1-alfa.1+exp.sha.1
+ 
+ $ pm version -c 1.0.1-alfa.1+exp.sha.1
+ $ true
+ `,
 		Run: func(cmd *cobra.Command, args []string) {
 			run(cmd, args)
 		},
@@ -55,6 +63,7 @@ Examples:
 	cmd.Flags().BoolP("patch", "z", false, usagePatch)
 	//cmd.Flags().BoolP("remove", "r", false, "")
 	cmd.Flags().BoolP("full", "f", false, "print full version Version-PreRealase+Build")
+	cmd.Flags().StringP("check", "c", "", "check if version is based on semver.org")
 
 	var cmdRelease = &cobra.Command{
 		Use:   "pre-release",
@@ -119,6 +128,11 @@ func getManifestPath(name string) string {
 		return name
 	}
 	return fmt.Sprintf("version.%s", name)
+}
+
+func (c *Command) check(version string) bool {
+	r, _ := regexp.Compile("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
+	return r.MatchString(version)
 }
 
 func (c *Command) status(ctx *pm.Ctx, name string) {
