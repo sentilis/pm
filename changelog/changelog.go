@@ -2,6 +2,9 @@ package changelog
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -33,54 +36,68 @@ func (command Command) Run(ctx *pm.Ctx) *cobra.Command {
 	}
 	var subCLI = &cobra.Command{
 		Use:   "changelog",
-		Short: "",
-		Long:  ``,
+		Short: "Show or add changelogs",
+		Example: `
+pm changelog -v -a "Grouped by version"
+1.0.1-beta.1: 
+- Grouped by version
+
+pm changelog -vd -a "Grouped by version and date"
+1.0.1-beta.1 (2021-03-10): 
+- Grouped by version and date
+
+pm changelog -d -a "Grouped by date"
+2021-03-10: 
+ - First changelog
+ `,
 		Run: func(kwargs *cobra.Command, args []string) {
 			if err := ctx.LoadChangelog(); err != nil {
 				ctx.Err.Fatal(err)
 			}
+			show := true
 			if ok, _ := kwargs.Flags().GetBool("version"); ok {
 				requiredAdd(kwargs)
 				d, a := getDateAdd(kwargs)
-				command.groupedBy(ctx, "version", d, a)
+				command.add(ctx, "version", d, a)
+				show = false
 			} else if ok, _ := kwargs.Flags().GetBool("date"); ok {
 				requiredAdd(kwargs)
 				d, a := getDateAdd(kwargs)
-				command.groupedBy(ctx, "date", d, a)
+				command.add(ctx, "date", d, a)
+				show = false
 			}
+			if show {
+				command.show(ctx)
+			}
+
 		},
 	}
-	subCLI.Flags().StringP("add", "a", "", "Add description")
-	subCLI.Flags().BoolP("version", "v", false, "Group by version")
-	subCLI.Flags().BoolP("date", "d", false, "Group by date")
-	//subCLI.Flags().StringP("key", "k", "", "Group by custom key")
+
+	subCLI.Flags().StringP("add", "a", "", "add description")
+	subCLI.Flags().BoolP("version", "v", false, "grouped by version")
+	subCLI.Flags().BoolP("date", "d", false, "grouped by date")
 
 	return subCLI
 }
 
-// groupedByVersion .. get current version project and set
-//
-// CLI
-// pm changelog -v -a "This is my first changelog"
-//
-// FILE
-// changelog:
-//	version-PreRelease:
-// 		version: version-PreRelease
-//		item:
-//			- This is my first changelog
-//
-// CLI
-// pm changelog -v -d -a "This is my first changelog"
-//
-// FILE
-// changelog:
-//	version-PreRelease-Date:
-// 		version: Version-PreRelease
-// 		date: Date
-//		items:
-//			- This is my first changelog
-func (command Command) groupedBy(ctx *pm.Ctx, ttype string, date bool, message string) error {
+func (command Command) show(ctx *pm.Ctx) {
+	cmd := exec.Command("less")
+
+	file, err := ioutil.ReadFile(ctx.GetChangelogPath())
+	if err != nil {
+		ctx.Err.Fatal(err)
+	}
+
+	cmd.Stdin = strings.NewReader(string(file))
+	cmd.Stdout = os.Stdout
+
+	if err := cmd.Run(); err != nil {
+		ctx.Err.Fatal(err)
+	}
+}
+
+// add .. Set log grouped by date|version|version (date)
+func (command Command) add(ctx *pm.Ctx, ttype string, date bool, message string) error {
 
 	index := time.Now().Format("2006-01-02")
 	if ttype == "version" {
@@ -89,8 +106,6 @@ func (command Command) groupedBy(ctx *pm.Ctx, ttype string, date bool, message s
 		if date {
 			index = fmt.Sprintf("%s (%s)", index, d)
 		}
-	} else { // date
-
 	}
 
 	items := ctx.Changelog.GetStringSlice(index)

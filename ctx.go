@@ -1,6 +1,7 @@
 package pm
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path"
@@ -69,4 +70,9 @@ func (ctx *Ctx) LoadChangelog() error {
 		}
 	}
 	return nil
+}
+
+// GetChangelogPath ..
+func (ctx Ctx) GetChangelogPath() string {
+	return path.Join(ctx.WorkingDir, ctx.PMDir, fmt.Sprintf("%s.%s", ChangelogName, ChangelogType))
 }
