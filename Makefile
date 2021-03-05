@@ -1,3 +1,12 @@
+# If the first argument is "run"...
+ifeq (run,$(firstword $(MAKECMDGOALS)))
+  # use the rest as arguments for "run"
+  RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  # ...and turn them into do-nothing targets
+  $(eval $(RUN_ARGS):;@:)
+endif
+
+
 gh-wiki: SHELL:=/bin/bash
 gh-wiki:
 	echo "Clean wiki"
@@ -21,4 +30,5 @@ gh-wiki:
 		git commit -m "Update $(date)";\
 		git push --set-upstream origin master;\
 	fi
-	
+run:
+	go run cmd/pm/main.go $(RUN_ARGS)

@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/josehbez/pm"
+	changelog "github.com/josehbez/pm/changelog"
 	version "github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
 
@@ -32,7 +34,7 @@ func run() *cobra.Command {
 	var ctx = pm.NewCtx()
 
 	ctx.WorkingDir = workingDir
-	ctx.Manifest.AddConfigPath(workingDir)
+	ctx.Manifest.AddConfigPath(path.Join(ctx.WorkingDir, ctx.PMDir))
 	if err := ctx.Manifest.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			//ctx.Err.Fatalln("pm is not initialized, first run: pm init")
@@ -48,5 +50,6 @@ func commandList() []command {
 	return []command{
 		pm.InitCommand{},
 		version.Command{},
+		changelog.Command{},
 	}
 }

@@ -26,13 +26,13 @@ func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 		} else if ok, _ := cmd.Flags().GetString("label"); len(ok) > 0 {
 			c.label(ctx, cmd.Name(), ok)
 		} else if ok, _ := cmd.Flags().GetBool("full"); ok {
-			c.status(ctx, "full")
+			ctx.Out.Println(c.GetVersion(ctx, "full"))
 			os.Exit(0)
 		} else if ok, _ := cmd.Flags().GetString("check"); len(ok) > 0 {
 			ctx.Out.Println(c.check(ok))
 			os.Exit(0)
 		}
-		c.status(ctx, cmd.Name())
+		ctx.Out.Println(c.GetVersion(ctx, cmd.Name()))
 	}
 	var cmd = &cobra.Command{
 		Use:   "version",
@@ -135,7 +135,13 @@ func (c *Command) check(version string) bool {
 	return r.MatchString(version)
 }
 
-func (c *Command) status(ctx *pm.Ctx, name string) {
+// GetVersion ...
+// Params:
+// 	- ctx Ctx
+//  - name Type vesion full,version,pre-release,build
+// Return:
+//	- string
+func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
 	version := ""
 	var getVersion = func(name string) string {
 		v := Version{
@@ -175,7 +181,7 @@ func (c *Command) status(ctx *pm.Ctx, name string) {
 		version = getVersion(name)
 	}
 
-	ctx.Out.Printf(version)
+	return version
 }
 
 func (c *Command) label(ctx *pm.Ctx, name, value string) error {

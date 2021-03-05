@@ -3,21 +3,33 @@ package pm
 import (
 	"log"
 	"os"
+	"path"
 
 	"github.com/spf13/viper"
 )
 
-// ManifestName ... file name
-const ManifestName = ".pm"
+const (
+	//ManifestName ..
+	ManifestName = "pm"
+	//ManifestType ..
+	ManifestType = "yml"
+)
 
-// ManifestType ... file name format
-const ManifestType = "yml"
+const (
+	// ChangelogName ..
+	ChangelogName = "changelog"
+	//ChangelogType ..
+	ChangelogType = "yml"
+)
+
+// PMDir ... workdir
+const PMDir = ".pm"
 
 //Ctx ...
 type Ctx struct {
-	WorkingDir string
-	Out, Err   *log.Logger
-	Manifest   *viper.Viper
+	WorkingDir, PMDir   string
+	Out, Err            *log.Logger
+	Manifest, Changelog *viper.Viper
 }
 
 //NewCtx ..
@@ -30,15 +42,31 @@ func NewCtx() *Ctx {
 		Manifest: v,
 		Out:      log.New(os.Stdout, "", 0),
 		Err:      log.New(os.Stderr, "", 0),
+		PMDir:    PMDir,
 	}
 
 }
 
 // InitManifest ...
-func (c Ctx) InitManifest() error {
-	c.Manifest.Set("version.major", 0)
-	c.Manifest.Set("version.minor", 1)
-	c.Manifest.Set("version.patch", 0)
-	c.Manifest.Set("version.label", "")
-	return c.Manifest.SafeWriteConfig()
+func (ctx Ctx) InitManifest() error {
+	ctx.Manifest.Set("version.major", 0)
+	ctx.Manifest.Set("version.minor", 1)
+	ctx.Manifest.Set("version.patch", 0)
+	return ctx.Manifest.SafeWriteConfig()
+}
+
+//LoadChangelog ..
+func (ctx *Ctx) LoadChangelog() error {
+
+	v := viper.NewWithOptions(viper.KeyDelimiter("::"))
+	v.SetConfigName(ChangelogName)
+	v.SetConfigType(ChangelogType)
+	v.AddConfigPath(path.Join(ctx.WorkingDir, ctx.PMDir))
+	ctx.Changelog = v
+	if err := ctx.Changelog.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			return ctx.Changelog.SafeWriteConfig()
+		}
+	}
+	return nil
 }
