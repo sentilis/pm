@@ -1,11 +1,9 @@
 package license
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -27,58 +25,84 @@ func (command Command) Run(ctx *pm.Ctx) *cobra.Command {
 		Short: "Show or add lincese based on https://spdx.org/licenses",
 		Example: `
 pm license --list 
+pm license --fetch Apache-2.0
 pm license --fetch MIT --save
  `,
 		Run: func(kwargs *cobra.Command, args []string) {
 
 			show := true
 			if ok, _ := kwargs.Flags().GetBool("list"); ok {
-				command.list(ctx)
 				show = false
+				l, lErr := command.List(ctx)
+				if lErr != nil {
+					ctx.Err.Fatalln(lErr)
+				}
+				w := new(tabwriter.Writer)
+				w.Init(ctx.Out.Writer(), 0, 8, 0, '\t', 0)
+				for _, l := range l {
+					if l.IsFsfLibre {
+						fmt.Fprintln(w, fmt.Sprintf("%s\t%s", l.LicenseID, l.Name))
+					}
+				}
+				w.Flush()
 			} else if ok, _ := kwargs.Flags().GetString("fetch"); len(ok) > 0 {
-				save, _ := kwargs.Flags().GetBool("save")
-				command.fetch(ctx, ok, save)
 				show = false
+
+				f, fErr := command.Fetch(ctx, ok)
+				if fErr != nil {
+					ctx.Err.Fatalln(fErr)
+				}
+				if s, _ := kwargs.Flags().GetBool("save"); s {
+					if sErr := command.Save(ctx, f); sErr != nil {
+						ctx.Err.Fatalln(sErr)
+					}
+				}
+				ctx.Out.Println(f)
 			}
 			if show {
-				command.show(ctx)
+				s, sErr := command.Show(ctx)
+				if sErr != nil {
+					ctx.Err.Fatalln(sErr)
+				}
+				ctx.Out.Println(s)
 			}
 
 		},
 	}
 
 	subCLI.Flags().StringP("fetch", "f", "", "fetch license by indentifier")
-	subCLI.Flags().BoolP("save", "s", false, "save license")
-	subCLI.Flags().BoolP("list", "l", false, "list full name and identifier licenses")
+	subCLI.Flags().BoolP("save", "s", false, "save license. required flag -f")
+	subCLI.Flags().BoolP("list", "l", false, "list of available licenses")
 
 	return subCLI
 }
 
-func (command Command) show(ctx *pm.Ctx) {
+//Show ...
+func (command Command) Show(ctx *pm.Ctx) (string, error) {
 	pathLicense := path.Join(ctx.WorkingDir, "LICENSE")
 	if _, err := os.Stat(pathLicense); os.IsNotExist(err) {
-		ctx.Out.Println("Not has LICENSE")
-		return
+		return "", err
 	}
-	inFile, err := os.Open(pathLicense)
+	inFile, err := ioutil.ReadFile(pathLicense)
 	if err != nil {
-		return
+		return "", err
 	}
-	scanner := bufio.NewScanner(inFile)
-	for scanner.Scan() {
-		ctx.Out.Println(scanner.Text()) // the line
-		return
-	}
+
+	return string(inFile), nil
 }
 
-func (command Command) list(ctx *pm.Ctx) {
-	type License struct {
-		LicenseId             string `json:"licenseId"`
-		Name                  string `json:"name"`
-		IsDeprecatedLicenseId bool   `json:"isDeprecatedLicenseId"`
-		IsFsfLibre            bool   `json:"isFsfLibre"`
-		IsOsiApproved         bool   `json:"isOsiApproved"`
-	}
+//License ..
+type License struct {
+	LicenseID             string `json:"licenseId"`
+	Name                  string `json:"name"`
+	IsDeprecatedLicenseID bool   `json:"isDeprecatedLicenseId"`
+	IsFsfLibre            bool   `json:"isFsfLibre"`
+	IsOsiApproved         bool   `json:"isOsiApproved"`
+}
+
+// List ...
+func (command Command) List(ctx *pm.Ctx) ([]License, error) {
+
 	type Licenses struct {
 		Licenses []License `json:"licenses"`
 	}
@@ -87,51 +111,61 @@ func (command Command) list(ctx *pm.Ctx) {
 
 	res, err := http.Get(url)
 	if err != nil {
-		ctx.Err.Fatal(err.Error())
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	var data Licenses
-	body, err := ioutil.ReadAll(res.Body)
 
-	if err != nil {
-		ctx.Err.Fatal(err.Error())
+	body, bodyErr := ioutil.ReadAll(res.Body)
+	if bodyErr != nil {
+		return nil, bodyErr
 	}
-	json.Unmarshal(body, &data)
-
-	w := new(tabwriter.Writer)
-	w.Init(ctx.Out.Writer(), 0, 8, 0, '\t', 0)
-	for _, l := range data.Licenses {
-		if l.IsFsfLibre {
-			fmt.Fprintln(w, fmt.Sprintf("%s\t%s", l.LicenseId, l.Name))
-		}
+	if jsonErr := json.Unmarshal(body, &data); jsonErr != nil {
+		return nil, jsonErr
 	}
-	w.Flush()
+	return data.Licenses, nil
 }
-func (command Command) fetch(ctx *pm.Ctx, licenseID string, save bool) {
+
+// Fetch ...
+func (command Command) Fetch(ctx *pm.Ctx, licenseID string) (string, error) {
 	url := fmt.Sprintf("https://spdx.org/licenses/%s.txt", licenseID)
 	//url := fmt.Sprintf("https://raw.githubusercontent.com/spdx/license-list-data/master/text/%s.txt", licenseID)
 
 	res, err := http.Get(url)
 	if err != nil {
-		ctx.Err.Fatal(err.Error())
+		return "", err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		ctx.Err.Fatal(fmt.Errorf("License ID invalid %s ", licenseID))
+		return "", fmt.Errorf("License ID invalid %s ", licenseID)
 	}
-	body, err := ioutil.ReadAll(res.Body)
+	body, bodyErr := ioutil.ReadAll(res.Body)
 
+	if bodyErr != nil {
+		return "", bodyErr
+	}
+	//if save {
+
+	//}
+	return string(body), nil
+}
+
+// Save ..
+func (command Command) Save(ctx *pm.Ctx, license string) error {
+	f, err := os.OpenFile(path.Join(ctx.WorkingDir, "LICENSE"), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		ctx.Err.Fatal(err.Error())
+		return err
 	}
-	if save {
-		f, err := os.OpenFile("LICENSE", os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		f.Write(body)
+	_, writeErr := f.Write([]byte(license))
+	if writeErr != nil {
+		return writeErr
 	}
-	ctx.Out.Println(string(body))
+	return nil
+}
+
+// Remove ..
+func (command Command) Remove(ctx *pm.Ctx) error {
+	return os.Remove(path.Join(ctx.WorkingDir, "LICENSE"))
 }
