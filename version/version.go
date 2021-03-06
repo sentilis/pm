@@ -57,23 +57,22 @@ func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 	usageMinor := "version when you add functionality in a backwards compatible manner"
 	usagePatch := "version when you make backwards compatible bug fixe"
 	usageRemove := "remove node metadata"
-	//cmd.Flags().StringP("label", "l", "", "")
+
 	cmd.Flags().BoolP("major", "x", false, usageMajor)
 	cmd.Flags().BoolP("minor", "y", false, usageMinor)
 	cmd.Flags().BoolP("patch", "z", false, usagePatch)
-	//cmd.Flags().BoolP("remove", "r", false, "")
 	cmd.Flags().BoolP("full", "f", false, "print full version Version-PreRealase+Build")
 	cmd.Flags().StringP("check", "c", "", "check if version is based on semver.org")
 
 	var cmdRelease = &cobra.Command{
-		Use:   "pre-release",
+		Use:   "prerelease",
 		Short: "version indicates that the version is unstable",
 		Long: `
 Software release cycle life: [[alfa < beta < release-candidate] release | release-tls < discontinued]
 
 Examples:
- $ pm version pre-release -l alfa
- $ pm version pre-release -x 
+ $ pm version prerelease -l alfa
+ $ pm version prerelease -x 
  
  $ pm version pre-relase
  $ alfa.1
@@ -82,7 +81,7 @@ Examples:
 			run(cmd, args)
 		},
 	}
-	cmdRelease.Flags().StringP("label", "l", "", "set pre-release name")
+	cmdRelease.Flags().StringP("label", "l", "", "set prerelease name")
 	cmdRelease.Flags().BoolP("major", "x", false, usageMajor)
 	//cmdRelease.Flags().BoolP("minor", "y", false, "")
 	//cmdRelease.Flags().BoolP("patch", "z", false, "")
@@ -111,7 +110,6 @@ Examples:
 	//cmdBuild.Flags().BoolP("patch", "z", false, "")
 	cmdBuild.Flags().BoolP("remove", "r", false, usageRemove)
 	cmd.AddCommand(cmdBuild)
-
 	return cmd
 }
 
@@ -131,7 +129,7 @@ func (c *Command) check(version string) bool {
 // GetVersion ...
 // Params:
 // 	- ctx Ctx
-//  - name Type vesion full,version,pre-release,build
+//  - name Type vesion full,version,prerelease,build
 // Return:
 //	- string
 func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
@@ -162,7 +160,7 @@ func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
 	}
 	if name == "full" {
 		version = getVersion("version")
-		p := getVersion("pre-release")
+		p := getVersion("prerelease")
 		b := getVersion("build")
 		if len(p) > 0 {
 			version = fmt.Sprintf("%s-%s", version, p)
