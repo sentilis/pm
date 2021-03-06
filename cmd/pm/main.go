@@ -31,8 +31,7 @@ func run() *cobra.Command {
 		os.Exit(1)
 	}
 
-	var ctx = pm.NewCtx()
-	ctx.WorkingDir = workingDir
+	var ctx = pm.NewCtx(workingDir)
 
 	initCommand := pm.InitCommand{}
 	if initCommand.Exceuted(ctx) {

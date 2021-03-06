@@ -42,11 +42,12 @@ type Ctx struct {
 }
 
 //NewCtx ..
-func NewCtx() *Ctx {
+func NewCtx(workingDir string) *Ctx {
 	return &Ctx{
-		Out:   log.New(os.Stdout, "", 0),
-		Err:   log.New(os.Stderr, "", 0),
-		PMDir: PMDir,
+		Out:        log.New(os.Stdout, "", 0),
+		Err:        log.New(os.Stderr, "", 0),
+		PMDir:      PMDir,
+		WorkingDir: workingDir,
 	}
 
 }
