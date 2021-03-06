@@ -17,6 +17,7 @@ type Command struct {
 func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 
 	var run = func(cmd *cobra.Command, args []string) {
+
 		if ok, _ := cmd.Flags().GetBool("major"); ok {
 			c.major(ctx, cmd.Name())
 		} else if ok, _ := cmd.Flags().GetBool("minor"); ok {
@@ -37,17 +38,16 @@ func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "version",
 		Short: "Semantic versioning specification",
-		Long: `
-Examples:
- $ pm version -x
- $ pm version -y
- $ pm version -z
+		Example: `
+ pm version --major
+ pm version --minor
+ pm version --patch
 
- $ pm version -f 
- $ 1.0.1-alfa.1+exp.sha.1
+ pm version --full
+ 1.0.1-alfa.1+exp.sha.1
  
- $ pm version -c 1.0.1-alfa.1+exp.sha.1
- $ true
+ pm version --check 1.0.1-alfa.1+exp.sha.1
+ 
  `,
 		Run: func(cmd *cobra.Command, args []string) {
 			run(cmd, args)
@@ -123,13 +123,6 @@ type Version struct {
 	Label string
 }
 
-func getManifestPath(name string) string {
-	if name == "version" {
-		return name
-	}
-	return fmt.Sprintf("version.%s", name)
-}
-
 func (c *Command) check(version string) bool {
 	r, _ := regexp.Compile("^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$")
 	return r.MatchString(version)
@@ -145,10 +138,10 @@ func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
 	version := ""
 	var getVersion = func(name string) string {
 		v := Version{
-			Label: ctx.Manifest.GetString(fmt.Sprintf("%s.label", getManifestPath(name))),
-			Major: ctx.Manifest.GetInt(fmt.Sprintf("%s.major", getManifestPath(name))),
-			Minor: ctx.Manifest.GetInt(fmt.Sprintf("%s.minor", getManifestPath(name))),
-			Patch: ctx.Manifest.GetInt(fmt.Sprintf("%s.patch", getManifestPath(name))),
+			Label: ctx.Version.GetString(fmt.Sprintf("%s.label", name)),
+			Major: ctx.Version.GetInt(fmt.Sprintf("%s.major", name)),
+			Minor: ctx.Version.GetInt(fmt.Sprintf("%s.minor", name)),
+			Patch: ctx.Version.GetInt(fmt.Sprintf("%s.patch", name)),
 		}
 		if name == "version" {
 			return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
@@ -160,9 +153,9 @@ func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
 		}
 		if v.Major > 0 {
 			if len(v.Label) > 0 {
-				v2 = fmt.Sprintf("%s.%d", v.Label, v.Minor)
+				v2 = fmt.Sprintf("%s.%d", v.Label, v.Major)
 			} else {
-				v2 = fmt.Sprintf("%d", v.Minor)
+				v2 = fmt.Sprintf("%d", v.Major)
 			}
 		}
 		return v2
@@ -185,34 +178,34 @@ func (c Command) GetVersion(ctx *pm.Ctx, name string) string {
 }
 
 func (c *Command) label(ctx *pm.Ctx, name, value string) error {
-	ctx.Manifest.Set(fmt.Sprintf("%s.label", getManifestPath(name)), value)
-	return ctx.Manifest.WriteConfig()
+	ctx.Version.Set(fmt.Sprintf("%s.label", name), value)
+	return ctx.Version.WriteConfig()
 }
 
 func (c *Command) major(ctx *pm.Ctx, name string) error {
 
-	major := ctx.Manifest.GetInt(fmt.Sprintf("%s.major", getManifestPath(name))) + 1
-	ctx.Manifest.Set(fmt.Sprintf("%s.major", getManifestPath(name)), major)
-	ctx.Manifest.Set(fmt.Sprintf("%s.minor", getManifestPath(name)), 0)
-	ctx.Manifest.Set(fmt.Sprintf("%s.patch", getManifestPath(name)), 0)
-	return ctx.Manifest.WriteConfig()
+	major := ctx.Version.GetInt(fmt.Sprintf("%s.major", name)) + 1
+	ctx.Version.Set(fmt.Sprintf("%s.major", name), major)
+	ctx.Version.Set(fmt.Sprintf("%s.minor", name), 0)
+	ctx.Version.Set(fmt.Sprintf("%s.patch", name), 0)
+	return ctx.Version.WriteConfig()
 }
 
 func (c *Command) minor(ctx *pm.Ctx, name string) error {
-	minor := ctx.Manifest.GetInt(fmt.Sprintf("%s.minor", getManifestPath(name))) + 1
-	ctx.Manifest.Set(fmt.Sprintf("%s.minor", getManifestPath(name)), minor)
-	ctx.Manifest.Set(fmt.Sprintf("%s.patch", getManifestPath(name)), 0)
-	return ctx.Manifest.WriteConfig()
+	minor := ctx.Version.GetInt(fmt.Sprintf("%s.minor", name)) + 1
+	ctx.Version.Set(fmt.Sprintf("%s.minor", name), minor)
+	ctx.Version.Set(fmt.Sprintf("%s.patch", name), 0)
+	return ctx.Version.WriteConfig()
 }
 
 func (c *Command) patch(ctx *pm.Ctx, name string) error {
-	patch := ctx.Manifest.GetInt(fmt.Sprintf("%s.patch", getManifestPath(name))) + 1
-	ctx.Manifest.Set(fmt.Sprintf("%s.patch", getManifestPath(name)), patch)
-	return ctx.Manifest.WriteConfig()
+	patch := ctx.Version.GetInt(fmt.Sprintf("%s.patch", name)) + 1
+	ctx.Version.Set(fmt.Sprintf("%s.patch", name), patch)
+	return ctx.Version.WriteConfig()
 
 }
 
 func (c *Command) remove(ctx *pm.Ctx, name string) error {
-	ctx.Manifest.SetDefault(fmt.Sprintf("%s", getManifestPath(name)), nil)
-	return ctx.Manifest.WriteConfig()
+	ctx.Version.SetDefault(fmt.Sprintf("%s", name), nil)
+	return ctx.Version.WriteConfig()
 }

@@ -51,9 +51,7 @@ pm changelog -d -a "Grouped by date"
  - First changelog
  `,
 		Run: func(kwargs *cobra.Command, args []string) {
-			if err := ctx.LoadChangelog(); err != nil {
-				ctx.Err.Fatal(err)
-			}
+
 			show := true
 			if ok, _ := kwargs.Flags().GetBool("version"); ok {
 				requiredAdd(kwargs)

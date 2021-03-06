@@ -1,0 +1,14 @@
+build:
+  label: exp.sha
+  major: 1
+  minor: 0
+  patch: 0
+pre-release:
+  label: beta
+  major: 1
+  minor: 0
+  patch: 0
+version:
+  major: 0
+  minor: 1
+  patch: 0

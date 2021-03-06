@@ -3,14 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
-	"path"
 
 	"github.com/josehbez/pm"
 	"github.com/josehbez/pm/changelog"
 	"github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -23,7 +20,9 @@ type command interface {
 
 func run() *cobra.Command {
 
-	var rootCmd = &cobra.Command{Use: "pm"}
+	var rootCmd = &cobra.Command{
+		Use: "pm",
+	}
 
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -32,17 +31,21 @@ func run() *cobra.Command {
 	}
 
 	var ctx = pm.NewCtx()
-
 	ctx.WorkingDir = workingDir
-	ctx.Manifest.AddConfigPath(path.Join(ctx.WorkingDir, ctx.PMDir))
-	if err := ctx.Manifest.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			//ctx.Err.Fatalln("pm is not initialized, first run: pm init")
+
+	initCommand := pm.InitCommand{}
+	if initCommand.Exceuted(ctx) {
+		if err := ctx.PreLoad(); err != nil {
+			fmt.Println("failed to pre-load files")
+			os.Exit(1)
 		}
+		for _, cmd := range commandList() {
+			rootCmd.AddCommand(cmd.Run(ctx))
+		}
+	} else {
+		rootCmd.AddCommand(initCommand.Run(ctx))
 	}
-	for _, cmd := range commandList() {
-		rootCmd.AddCommand(cmd.Run(ctx))
-	}
+
 	return rootCmd
 }
 

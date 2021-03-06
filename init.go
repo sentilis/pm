@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 //InitCommand ...
@@ -13,7 +12,7 @@ type InitCommand struct {
 }
 
 // Run ...
-func (c InitCommand) Run(ctx *Ctx) *cobra.Command {
+func (command InitCommand) Run(ctx *Ctx) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "init",
 		Short: "Create an empty pm or reinitialize an existing one",
@@ -25,21 +24,19 @@ func (c InitCommand) Run(ctx *Ctx) *cobra.Command {
 					ctx.Err.Panic(err)
 				}
 			}
-			if err := ctx.Manifest.ReadInConfig(); err != nil {
-				if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-					if errDV := ctx.InitManifest(); errDV != nil {
-						ctx.Err.Fatalln(errDV)
-					}
-					ctx.Out.Printf("Initialized in %s", ctx.WorkingDir)
-
-				} else {
-					ctx.Err.Fatalln(err)
-				}
-
-			} else {
-				ctx.Out.Println(fmt.Sprintf("Reinitialized in %s", ctx.WorkingDir))
+			if err := ctx.PreLoad(); err != nil {
+				ctx.Err.Panic(err)
 			}
+			ctx.Out.Println(fmt.Sprintf("Initialized in %s", ctx.WorkingDir))
 		},
 	}
 	return cmd
+}
+
+//Exceuted ...
+func (command InitCommand) Exceuted(ctx *Ctx) bool {
+	if _, err := os.Stat(ctx.PMDir); os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
