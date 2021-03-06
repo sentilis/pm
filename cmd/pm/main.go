@@ -6,6 +6,7 @@ import (
 
 	"github.com/josehbez/pm"
 	"github.com/josehbez/pm/changelog"
+	"github.com/josehbez/pm/license"
 	"github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
 )
@@ -54,5 +55,6 @@ func commandList() []command {
 		pm.InitCommand{},
 		version.Command{},
 		changelog.Command{},
+		license.Command{},
 	}
 }
