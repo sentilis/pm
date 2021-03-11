@@ -3,14 +3,14 @@ package changelog
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
-	"os/exec"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/josehbez/pm"
 	"github.com/josehbez/pm/version"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
 //Command ...
@@ -19,97 +19,115 @@ type Command struct {
 
 // Run ...
 func (command Command) Run(ctx *pm.Ctx) *cobra.Command {
-	var requiredAdd = func(kwargs *cobra.Command) {
-		val, err := kwargs.Flags().GetString("add")
-		if err != nil {
-			ctx.Err.Fatal("flag -a required")
-		}
-		if len(val) == 0 {
-			ctx.Err.Fatal("flag -a required")
-		}
-	}
 
-	var getDateAdd = func(kwargs *cobra.Command) (d bool, a string) {
-		d, _ = kwargs.Flags().GetBool("date")
-		a, _ = kwargs.Flags().GetString("add")
-		return
+	type changelogType struct {
+		name, shorthand, value, usage string
+	}
+	changelogTypes := []changelogType{
+		{"added", "a", "", "for new features"},
+		{"changed", "c", "", "for changes in existing functionality"},
+		{"deprecated", "d", "", "for soon-to-be removed features"},
+		{"removed", "r", "", "for now removed features"},
+		{"fixed", "f", "", "for any bug fixes"},
+		{"security", "s", "", "in case of vulnerabilities"},
 	}
 	var subCLI = &cobra.Command{
 		Use:   "changelog",
 		Short: "Show or add changelogs",
 		Example: `
-pm changelog -v -a "Grouped by version"
-1.0.1-beta.1: 
-- Grouped by version
+pm changelog --added "A1"
+pm changelog --fixed "F2"
+pm changelog --fixed "F2" --added "A1"
 
-pm changelog -vd -a "Grouped by version and date"
-1.0.1-beta.1 (2021-03-10): 
-- Grouped by version and date
-
-pm changelog -d -a "Grouped by date"
-2021-03-10: 
- - First changelog
  `,
 		Run: func(kwargs *cobra.Command, args []string) {
-
-			show := true
-			if ok, _ := kwargs.Flags().GetBool("version"); ok {
-				requiredAdd(kwargs)
-				d, a := getDateAdd(kwargs)
-				command.add(ctx, "version", d, a)
-				show = false
-			} else if ok, _ := kwargs.Flags().GetBool("date"); ok {
-				requiredAdd(kwargs)
-				d, a := getDateAdd(kwargs)
-				command.add(ctx, "date", d, a)
-				show = false
-			}
-			if show {
-				command.show(ctx)
+			index := ""
+			for _, i := range changelogTypes {
+				if val, _ := kwargs.Flags().GetString(i.name); len(val) > 0 {
+					index, _ = command.Add(ctx, i.name, val)
+				}
 			}
 
+			s, sErr := command.Show(ctx, index)
+			if sErr != nil {
+				ctx.Err.Fatalln(sErr)
+			}
+			ctx.Out.Println(s)
 		},
 	}
-
-	subCLI.Flags().StringP("add", "a", "", "add description")
-	subCLI.Flags().BoolP("version", "v", false, "grouped by version")
-	subCLI.Flags().BoolP("date", "d", false, "grouped by date")
-
+	for _, i := range changelogTypes {
+		subCLI.Flags().StringP(i.name, i.shorthand, i.value, i.usage)
+	}
 	return subCLI
 }
 
-func (command Command) show(ctx *pm.Ctx) {
-	cmd := exec.Command("less")
-
-	file, err := ioutil.ReadFile(ctx.GetChangelogPath())
-	if err != nil {
-		ctx.Err.Fatal(err)
+// Show  ...
+func (command Command) Show(ctx *pm.Ctx, indexShow string) (string, error) {
+	type ChangelogType struct {
+		Added      []string `yaml:"added"`
+		Changed    []string `yaml:"changed"`
+		Deprecated []string `yaml:"deprecated"`
+		Removed    []string `yaml:"removed"`
+		Fixed      []string `yaml:"fixed"`
+		Security   []string `yaml:"security"`
 	}
+	changelogs := map[string]ChangelogType{}
 
-	cmd.Stdin = strings.NewReader(string(file))
-	cmd.Stdout = os.Stdout
-
-	if err := cmd.Run(); err != nil {
-		ctx.Err.Fatal(err)
+	file, fileErr := ioutil.ReadFile(ctx.GetChangelogPath())
+	if fileErr != nil {
+		return "", fileErr
 	}
-}
+	yaml.Unmarshal([]byte(file), &changelogs)
+	msg := ""
+	for index, changelog := range changelogs {
 
-// add .. Set log grouped by date|version|version (date)
-func (command Command) add(ctx *pm.Ctx, ttype string, date bool, message string) error {
+		var printcl = func() {
 
-	index := time.Now().Format("2006-01-02")
-	if ttype == "version" {
-		d := index
-		index = strings.Split(version.Command{}.GetVersion(ctx, "full"), "+")[0]
-		if date {
-			index = fmt.Sprintf("%s (%s)", index, d)
+			msg += fmt.Sprintln(index, ":")
+			var printscl = func(value reflect.Value, ttype string) {
+				if item, ok := value.Interface().([]string); ok {
+					if len(item) > 0 {
+						msg += fmt.Sprintln(" ", ttype, ":")
+						for _, l4v := range item {
+							msg += fmt.Sprintln("    -", l4v)
+						}
+					}
+				}
+
+			}
+			for i := 0; i < reflect.TypeOf(changelog).NumField(); i++ {
+				fieldName := reflect.TypeOf(changelog).Field(i).Name
+				printscl(
+					reflect.ValueOf(changelog).FieldByName(fieldName),
+					fieldName,
+				)
+			}
+
+		}
+
+		if len(indexShow) > 0 {
+			if index == indexShow {
+				printcl()
+			}
+		} else {
+			printcl()
 		}
 	}
+	return msg, nil
+}
 
-	items := ctx.Changelog.GetStringSlice(index)
+// Add ..
+func (command Command) Add(ctx *pm.Ctx, ttype string, message string) (string, error) {
+
+	index := fmt.Sprintf("%s (%s)",
+		strings.Split(version.Command{}.GetVersion(ctx, "full"), "+")[0],
+		time.Now().Format("2006-01-02"),
+	)
+	indexType := fmt.Sprintf("%s::%s", index, ttype)
+	items := ctx.Changelog.GetStringSlice(indexType)
 
 	items = append(items, message)
 
-	ctx.Changelog.Set(index, items)
-	return ctx.Changelog.WriteConfig()
+	ctx.Changelog.Set(indexType, items)
+	return index, ctx.Changelog.WriteConfig()
 }
