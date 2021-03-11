@@ -15,7 +15,7 @@ type InitCommand struct {
 func (command InitCommand) Run(ctx *Ctx) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "init",
-		Short: "Create an empty pm or reinitialize an existing one",
+		Short: "Create an empty PM",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := command.Initialized(ctx); err != nil {

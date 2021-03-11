@@ -33,7 +33,7 @@ func (command Command) Run(ctx *pm.Ctx) *cobra.Command {
 	}
 	var subCLI = &cobra.Command{
 		Use:   "changelog",
-		Short: "Show or add changelogs",
+		Short: "Show & add changelog",
 		Example: `
 pm changelog --added "A1"
 pm changelog --fixed "F2"

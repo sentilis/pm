@@ -37,7 +37,7 @@ func (c Command) Run(ctx *pm.Ctx) *cobra.Command {
 	}
 	var cmd = &cobra.Command{
 		Use:   "version",
-		Short: "Semantic versioning specification",
+		Short: "Semantic versioning management",
 		Example: `
  pm version --major
  pm version --minor

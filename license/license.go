@@ -22,7 +22,7 @@ func (command Command) Run(ctx *pm.Ctx) *cobra.Command {
 	// ref: https://www.synopsys.com/blogs/software-security/top-open-source-licenses/
 	var subCLI = &cobra.Command{
 		Use:   "license",
-		Short: "Show or add lincese based on https://spdx.org/licenses",
+		Short: "Show & add license",
 		Example: `
 pm license --list 
 pm license --fetch Apache-2.0
