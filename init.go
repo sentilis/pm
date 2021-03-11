@@ -18,19 +18,26 @@ func (command InitCommand) Run(ctx *Ctx) *cobra.Command {
 		Short: "Create an empty pm or reinitialize an existing one",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
-
-			if _, err := os.Stat(ctx.PMDir); os.IsNotExist(err) {
-				if err := os.MkdirAll(ctx.PMDir, 0755); err != nil {
-					ctx.Err.Panic(err)
-				}
-			}
-			if err := ctx.PreLoad(); err != nil {
-				ctx.Err.Panic(err)
+			if err := command.Initialized(ctx); err != nil {
+				ctx.Err.Fatal(err)
 			}
 			ctx.Out.Println(fmt.Sprintf("Initialized in %s", ctx.WorkingDir))
 		},
 	}
 	return cmd
+}
+
+// Initialized ..
+func (command InitCommand) Initialized(ctx *Ctx) error {
+	if _, err := os.Stat(ctx.PMDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(ctx.PMDir, 0755); err != nil {
+			return err
+		}
+	}
+	if err := ctx.PreLoad(); err != nil {
+		return err
+	}
+	return nil
 }
 
 //Exceuted ...
