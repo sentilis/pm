@@ -1,3 +1,20 @@
+GOBIN=$(shell go env GOPATH)/bin
+
+go-install: SHELL:=/bin/bash
+go-install: go-build
+	@if [ -d "${GOBIN}" ] ; then\
+		mv build/pm "${GOBIN}";\
+		echo "instal on ${GOBIN}";\
+		rm -r build;\
+	fi
+
+go-build: SHELL:=/bin/bash
+go-build: 
+	[ -d docs ]  && rm -r build
+	[ ! -d build ] && mkdir build
+	go build -o build/pm cmd/pm/main.go 
+	chmod 755 build/pm
+
 gh-wiki: SHELL:=/bin/bash
 gh-wiki:
 	#echo "Clean wiki"
