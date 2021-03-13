@@ -1,0 +1,47 @@
+name: The Project Metadata Management 
+
+on:
+  push:
+    branches: 
+      - main
+
+jobs:
+  test:
+    name: Test on go ${{ matrix.version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        version: ['1.13']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go ${{ matrix.version }}
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.version }}
+
+    - name: Install dependencies
+      run: |
+        go version
+        go get -u golang.org/x/lint/golint
+ 
+    - name: Run vet & lint
+      run: |
+        go vet .
+        golint .
+    
+    - name: Run testing
+      run: go test -v 
+  
+  wiki:
+    name: Update github Wiki
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Build wiki"
+        run: |
+          ./makefile.sh gh-wiki
