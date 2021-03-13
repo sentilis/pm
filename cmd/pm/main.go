@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/josehbez/pm"
+	"github.com/josehbez/pm/author"
 	"github.com/josehbez/pm/changelog"
 	"github.com/josehbez/pm/license"
 	"github.com/josehbez/pm/version"
@@ -55,5 +56,7 @@ func commandList() []command {
 		version.Command{},
 		changelog.Command{},
 		license.Command{},
+		author.Command{},
+		author.CommandMaintainer{},
 	}
 }

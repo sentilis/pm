@@ -39,15 +39,27 @@ type Ctx struct {
 	WorkingDir, PMDir            string
 	Out, Err                     *log.Logger
 	Manifest, Changelog, Version *viper.Viper
+	Author                       Manifest
+	Maintainer                   Manifest
 }
 
 //NewCtx ..
 func NewCtx(workingDir string) *Ctx {
+	a := Manifest{
+		FileName: "author",
+		FileType: "yml",
+	}
+	m := Manifest{
+		FileName: "maintainer",
+		FileType: "yml",
+	}
 	return &Ctx{
 		Out:        log.New(os.Stdout, "", 0),
 		Err:        log.New(os.Stderr, "", 0),
 		PMDir:      PMDir,
 		WorkingDir: workingDir,
+		Author:     a,
+		Maintainer: m,
 	}
 
 }
@@ -139,3 +151,11 @@ func (ctx *Ctx) LoadChangelog() error {
 func (ctx Ctx) GetChangelogPath() string {
 	return path.Join(ctx.WorkingDir, ctx.PMDir, fmt.Sprintf("%s.%s", ChangelogName, ChangelogType))
 }
+
+// VERSION
+
+// CHANGELOG
+
+// AUTHOR
+
+// MAINTAINER
