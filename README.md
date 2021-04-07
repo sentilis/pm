@@ -78,6 +78,14 @@ pm version # Show version based on semver.org
 pm version --major / --minor / --patch # Increase major/ minor / patch version
 pm version --check 1.0.1-alfa.1+exp.sha.1 # check if version is based on semver.org
 
+pm version prerelease # Show version-prerelease
+pm version prerelease --label alfa # Add label pre-release
+pm version prerelease --major # Increase major pre-realease
+
+pm version build # Show version+build
+pm version build --label exp.sha # Add label build
+pm version build --major # Increase major build
+
 pm changelog # Show changelog
 pm changelog --added "sub-command changelog" # for new feature
 pm changelog --fixed "Show changelog by order desc " # for any bug fixes
