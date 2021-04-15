@@ -99,7 +99,7 @@ pm license --fetch MIT --save # fetch & save license by identifier
 pm author # Show  authors
 pm author --add "Jose Hbez" https://github.com/josehbez
 
-pm author # Show  maintainers
+pm maintainer # Show  maintainers
 pm maintainer --add "Jose Hbez" https://github.com/josehbez
 
 ```
