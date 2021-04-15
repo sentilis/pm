@@ -45,6 +45,7 @@ Table of contents
 ### Install
 
 ```bash
+go get -u github.com/josehbez/pm/cmd/pm
 go install github.com/josehbez/pm/cmd/pm
 ```
 
