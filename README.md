@@ -115,3 +115,18 @@ pm maintainer --add "Jose Hbez" https://github.com/josehbez
 ### Discussions
 
 [https://github.com/josehbez/pm/discussions](https://github.com/josehbez/pm/discussions)
+
+
+### Troubleshooting
+
+#### Cannot find package
+Pm installation seems to fail a lot lately with the following (or a similar) error:
+```
+package github.com/hashicorp/hcl/hcl/printer: cannot find package "github.com/hashicorp/hcl/hcl/printer" in any of:
+        /usr/lib/go-1.13/src/github.com/hashicorp/hcl/hcl/printer (from $GOROOT)
+        /home/user/go/src/github.com/hashicorp/hcl/hcl/printer (from $GOPATH)
+```
+The solution is easy: switch to using Go Modules. Please refer to the wiki on how to do that.
+
+`export GO111MODULE=on`
+
